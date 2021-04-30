@@ -18,6 +18,12 @@
     <ClInclude Include="gc5035mipi_Sensor.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="camera_AE_PLineTable_gc5035mipiraw.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AEPlinetable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gc5035mipi_Sensor.c">

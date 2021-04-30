@@ -16,12 +16,97 @@
 #ifndef __GC5035MIPI_SENSOR_H__
 #define __GC5035MIPI_SENSOR_H__
 
+#ifndef NULL
+#ifdef __cplusplus
+#define NULL	0
+#else
+#define NULL	((void *)0)
+#endif
+#endif
+
+typedef int bool;
+typedef int BOOL;
+#define KAL_TRUE	1
+#define KAL_FALSE	0
+#define FALSE		0
 
 #define kal_uint8				unsigned char 
 #define kal_uint16				unsigned short 
 #define kal_int16				short 
 #define kal_uint32				unsigned int 
 #define kal_bool				bool
+
+#define u8		unsigned char
+#define u16		unsigned short
+#define u32		unsigned int
+
+#define UINT8		unsigned char
+#define UINT16		unsigned short
+#define UINT32		unsigned int
+#define MUINT32		unsigned int
+
+#define uintptr_t	unsigned int*
+
+#define ERROR_NONE					0
+#define ERROR_SENSOR_CONNECT_FAIL	0x01
+#define ERROR_INVALID_SCENARIO_ID	0x01
+
+#define GC5035MIPI_SENSOR_ID		0x5035
+
+#define ISP_DRIVING_6MA					0x06
+#define SENSOR_INTERFACE_TYPE_MIPI		0x01
+#define MIPI_OPHY_NCSI2					0x01
+#define MIPI_SETTLEDELAY_AUTO			0x01
+#define SENSOR_OUTPUT_FORMAT_RAW_B		0x01
+#define SENSOR_OUTPUT_FORMAT_RAW_R		0x00
+#define SENSOR_MIPI_2_LANE				0x02
+#define IMAGE_NORMAL					0x00
+#define SENSOR_CLOCK_POLARITY_LOW		0x00
+#define LENS_DRIVER_ID_DO_NOT_CARE		0x01
+
+typedef struct win_info {
+	kal_uint16 sensor_width;
+	kal_uint16 sensor_height;
+	kal_uint16 sensor_width_offset;
+	kal_uint16 sensor_height_offset;
+	kal_uint16 sensor_crop_width;
+	kal_uint16 sensor_crop_height;
+	kal_uint16 sensor_crop_width_binning;
+	kal_uint16 sensor_crop_height_binning;
+	kal_uint16 sensor_crop_width_binning_offset;
+	kal_uint16 sensor_crop_height_binning_offset;
+	kal_uint16 wind_width;
+	kal_uint16 wind_height;
+	kal_uint16 wind_width_crop;
+	kal_uint16 wind_height_crop;
+	kal_uint16 wind_width_finaly;
+	kal_uint16 wind_height_finaly;
+}SENSOR_WINSIZE_INFO_STRUCT;
+
+
+typedef enum { MSDK_SCENARIO_ID_CAMERA_PREVIEW = 0x01, MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG, MSDK_SCENARIO_ID_VIDEO_PREVIEW,\
+	MSDK_SCENARIO_ID_HIGH_SPEED_VIDEO, MSDK_SCENARIO_ID_SLIM_VIDEO}MSDK_SCENARIO_ID_ENUM;
+
+typedef enum {
+	SENSOR_FEATURE_GET_PERIOD = 0x01, SENSOR_FEATURE_GET_PIXEL_CLOCK_FREQ, SENSOR_FEATURE_GET_MIPI_PIXEL_RATE, SENSOR_FEATURE_SET_ESHUTTER,\
+	SENSOR_FEATURE_SET_NIGHTMODE, SENSOR_FEATURE_SET_GAIN, SENSOR_FEATURE_SET_FLASHLIGHT, SENSOR_FEATURE_SET_ISP_MASTER_CLOCK_FREQ,\
+	SENSOR_FEATURE_SET_REGISTER, SENSOR_FEATURE_GET_REGISTER, SENSOR_FEATURE_GET_LENS_DRIVER_ID, SENSOR_FEATURE_SET_VIDEO_MODE,\
+	SENSOR_FEATURE_CHECK_SENSOR_ID, SENSOR_FEATURE_SET_AUTO_FLICKER_MODE, SENSOR_FEATURE_SET_MAX_FRAME_RATE_BY_SCENARIO,\
+	SENSOR_FEATURE_GET_DEFAULT_FRAME_RATE_BY_SCENARIO, SENSOR_FEATURE_SET_TEST_PATTERN, SENSOR_FEATURE_GET_TEST_PATTERN_CHECKSUM_VALUE,
+	SENSOR_FEATURE_SET_FRAMERATE, SENSOR_FEATURE_SET_HDR, SENSOR_FEATURE_GET_CROP_INFO, SENSOR_FEATURE_SET_IHDR_SHUTTER_GAIN
+}MSDK_SENSOR_FEATURE_ENUM;
+
+typedef struct sensor_function_struct {
+	uintptr_t open;
+	uintptr_t get_info;
+	uintptr_t get_resolution;
+	uintptr_t feature_control;
+	uintptr_t control;
+	uintptr_t close;
+}SENSOR_FUNCTION_STRUCT;
+
+
+#define PSENSOR_FUNCTION_STRUCT		uintptr_t
 
 
 /* SENSOR MIRROR FLIP INFO */
@@ -196,6 +281,7 @@ struct imgsensor_struct {
 	kal_uint16 current_fps;           /* current max fps */
 	kal_bool   autoflicker_en;        /* record autoflicker enable or disable */
 	kal_bool   test_pattern;          /* record test pattern mode or not */
+	//MSDK_SCENARIO_ID_ENUM current_scenario_id; /* current scenario id */
 	MSDK_SCENARIO_ID_ENUM current_scenario_id; /* current scenario id */
 	kal_bool   ihdr_en;                        /* ihdr enable or disable */
 	kal_uint8  i2c_write_id;          /* record current sensor's i2c write id */

@@ -18,20 +18,20 @@
  *============================================================================
  */
 
-#include <linux/videodev2.h>
-#include <linux/i2c.h>
-#include <linux/platform_device.h>
-#include <linux/delay.h>
-#include <linux/cdev.h>
-#include <linux/uaccess.h>
-#include <linux/fs.h>
-#include <linux/atomic.h>
-#include <linux/types.h>
-
-#include "kd_camera_typedef.h"
-#include "kd_imgsensor.h"
-#include "kd_imgsensor_define.h"
-#include "kd_imgsensor_errcode.h"
+//#include <linux/videodev2.h>
+//#include <linux/i2c.h>
+//#include <linux/platform_device.h>
+//#include <linux/delay.h>
+//#include <linux/cdev.h>
+//#include <linux/uaccess.h>
+//#include <linux/fs.h>
+//#include <linux/atomic.h>
+//#include <linux/types.h>
+//
+//#include "kd_camera_typedef.h"
+//#include "kd_imgsensor.h"
+//#include "kd_imgsensor_define.h"
+//#include "kd_imgsensor_errcode.h"
 
 #include "gc5035mipi_Sensor.h"
 
@@ -43,7 +43,8 @@
 #if GC5035_DEBUG
 #define LOG_INF(format, args...) pr_debug(PFX "[%s] " format, __func__, ##args)
 #else
-#define LOG_INF(format, args...)
+//#define LOG_INF(format, args...)
+#define	LOG_INF		printf
 #endif
 
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
