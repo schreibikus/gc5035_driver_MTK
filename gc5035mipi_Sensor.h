@@ -64,6 +64,77 @@ typedef int BOOL;
 #define SENSOR_CLOCK_POLARITY_LOW		0x00
 #define LENS_DRIVER_ID_DO_NOT_CARE		0x01
 
+typedef struct exp_win {
+	kal_uint8 xxx;
+}MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT;
+
+typedef struct sensor_config {
+	kal_uint8 xxxx;
+}MSDK_SENSOR_CONFIG_STRUCT;
+
+typedef struct sensor_info {
+	kal_uint8 SensorClockPolarity;
+	kal_uint8 SensorClockFallingPolarity;
+	kal_uint8 SensorHsyncPolarity;
+	kal_uint8 SensorVsyncPolarity;
+	kal_uint8 SensorInterruptDelayLines;
+	BOOL SensorResetActiveHigh;
+	kal_uint8 SensorResetDelayCount;
+
+	kal_uint8 SensroInterfaceType;
+	kal_uint8 MIPIsensorType;
+	kal_uint8 SettleDelayMode;
+	kal_uint8 SensorOutputDataFormat;
+
+	kal_uint8 CaptureDelayFrame;
+	kal_uint8 PreviewDelayFrame;
+	kal_uint8 VideoDelayFrame;
+	kal_uint8 HighSpeedVideoDelayFrame;
+	kal_uint8 SlimVideoDelayFrame;
+
+	kal_uint8 SensorMasterClockSwitch;
+	kal_uint8 SensorDrivingCurrent;
+	kal_uint8 AEShutDelayFrame;
+	kal_uint8 AESensorGainDelayFrame;
+	kal_uint8 AEISPGainDelayFrame;
+	kal_uint8 IHDR_Support;
+	kal_uint8 IHDR_LE_FirstLine;
+	kal_uint8 SensorModeNum;
+
+	kal_uint8 SensorMIPILaneNumber;
+	kal_uint8 SensorClockFreq;
+	kal_uint8 SensorClockDividCount;
+	kal_uint8 SensorClockRisingCount;
+	kal_uint8 SensorClockFallingCount;
+	kal_uint8 SensorPixelClockCount;
+	kal_uint8 SensorDataLatchCount;
+
+	kal_uint8 MIPIDataLowPwr2HighSpeedTermDelayCount;
+	kal_uint8 MIPICLKLowPwr2HighSpeedTermDelayCount;
+	kal_uint8 SensorWidthSampling;
+	kal_uint8 SensorHightSampling;
+	kal_uint8 SensorPacketECCOrder;\
+
+	kal_uint8 SensorGrabStartX;
+	kal_uint8 SensorGrabStartY;
+	kal_uint8 MIPIDataLowPwr2HighSpeedSettleDelayCount;
+
+}MSDK_SENSOR_INFO_STRUCT;
+
+typedef struct sensor_res {
+	kal_uint16 SensorFullWidth;
+	kal_uint16 SensorFullHeight;
+	kal_uint16 SensorPreviewWidth;
+	kal_uint16 SensorPreviewHeight;
+
+	kal_uint16 SensorVideoWidth;
+	kal_uint16 SensorVideoHeight;
+	kal_uint16 SensorHighSpeedVideoWidth;
+	kal_uint16 SensorHighSpeedVideoHeight;
+	kal_uint16 SensorSlimVideoWidth;
+	kal_uint16 SensorSlimVideoHeight;
+}MSDK_SENSOR_RESOLUTION_INFO_STRUCT;
+
 typedef struct win_info {
 	kal_uint16 sensor_width;
 	kal_uint16 sensor_height;

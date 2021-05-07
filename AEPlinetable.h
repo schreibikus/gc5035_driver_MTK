@@ -226,9 +226,11 @@ typedef struct
     MINT32        i4EffectiveMaxBV;
     MINT32        i4EffectiveMinBV;
     LIB3A_AE_ISO_SPEED_T   ISOSpeed;
-    strEvPline sTable60Hz;          // 50Hz structure table
+    //strEvPline sTable60Hz;          // 50Hz structure table
+    strEvPline sTable60Hz;
     strEvPline sTable50Hz;          // 60Hz structure table
     //strEvPline *pCurrentTable __attribute__ ((aligned (8))); // current structure table
+    __declspec(align(8))strEvPline* pCurrentTable ;//__attribute__ gccÌØÉ«
     strEvPline *pCurrentTable;
 }strAETable;
 
