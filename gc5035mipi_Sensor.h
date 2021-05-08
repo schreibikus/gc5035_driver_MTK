@@ -135,6 +135,12 @@ typedef struct sensor_res {
 	kal_uint16 SensorSlimVideoHeight;
 }MSDK_SENSOR_RESOLUTION_INFO_STRUCT;
 
+typedef struct sensor_reg_data {
+	kal_uint8 RegAddr;
+	kal_uint8 RegData;
+	
+}MSDK_SENSOR_REG_INFO_STRUCT;
+
 typedef struct win_info {
 	kal_uint16 sensor_width;
 	kal_uint16 sensor_height;
@@ -401,5 +407,13 @@ struct imgsensor_info_struct {
 extern int iReadRegI2C(u8 *a_pSendData, u16 a_sizeSendData, u8 *a_pRecvData, u16 a_sizeRecvData, u16 i2cId);
 extern int iWriteRegI2C(u8 *a_pSendData, u16 a_sizeSendData, u16 i2cId);
 extern int iWriteReg(u16 a_u2Addr, u32 a_u4Data, u32 a_u4Bytes, u16 i2cId);
+
+void set_max_framerate(UINT16 framerate, kal_bool min_framelength_en);
+void set_dummy(void);
+void set_shutter(kal_uint16 shutter);
+kal_uint16 set_gain(kal_uint16 gain);
+
+kal_uint32 open(void);
+
 
 #endif

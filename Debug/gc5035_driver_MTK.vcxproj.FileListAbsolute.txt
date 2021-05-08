@@ -1,0 +1,2 @@
+D:\File\Others\C_program\proj\gc5035_driver_MTK\Debug\gc5035_driver_MTK.exe
+D:\File\Others\C_program\proj\gc5035_driver_MTK\Debug\gc5035_driver_MTK.pdb

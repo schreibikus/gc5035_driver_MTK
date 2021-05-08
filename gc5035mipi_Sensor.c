@@ -45,6 +45,7 @@
 #else
 //#define LOG_INF(format, args...)
 #define	LOG_INF		printf
+#define	pr_debug		printf
 #endif
 
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
@@ -186,18 +187,20 @@ static SENSOR_WINSIZE_INFO_STRUCT imgsensor_winsize_info[5] = {
 static kal_uint16 read_cmos_sensor(kal_uint32 addr)
 {
 	kal_uint16 get_byte = 0;
-	char pu_send_cmd[1] = { (char)(addr & 0xFF) };
+	/*char pu_send_cmd[1] = { (char)(addr & 0xFF) };
 
-	iReadRegI2C(pu_send_cmd, 1, (u8 *)&get_byte, 1, imgsensor.i2c_write_id);
+	iReadRegI2C(pu_send_cmd, 1, (u8 *)&get_byte, 1, imgsensor.i2c_write_id);*/
+	printf("read sensor reg£º0x%x\n", addr);
 
 	return get_byte;
 }
 
 static void write_cmos_sensor(kal_uint32 addr, kal_uint32 para)
 {
-	char pu_send_cmd[2] = { (char)(addr & 0xFF), (char)(para & 0xFF) };
+	/*char pu_send_cmd[2] = { (char)(addr & 0xFF), (char)(para & 0xFF) };
 
-	iWriteRegI2C(pu_send_cmd, 2, imgsensor.i2c_write_id);
+	iWriteRegI2C(pu_send_cmd, 2, imgsensor.i2c_write_id);*/
+	printf("write sensor reg£º0x%x,0x%x\n", addr, para);
 }
 
 static kal_uint8 gc5035_otp_read_byte(kal_uint16 addr)
@@ -508,7 +511,8 @@ static void gc5035_otp_update_dd(void)
 		while (n < 3) {
 			state = read_cmos_sensor(0x06);
 			if ((state | 0xfe) == 0xff)
-				mdelay(10);
+				//mdelay(10);
+				NULL;
 			else
 				n = 3;
 			n++;
@@ -649,6 +653,7 @@ static kal_uint8 gc5035_otp_identify(void)
 
 static void gc5035_otp_function(void)
 {
+	LOG_INF("Entry otp function£º\n");
 	kal_uint8 i = 0, flag = 0;
 	kal_uint8 otp_id[GC5035_OTP_ID_SIZE];
 
@@ -685,17 +690,21 @@ static void gc5035_otp_function(void)
 	write_cmos_sensor(0x67, 0x00);
 	write_cmos_sensor(0xfe, 0x00);
 	write_cmos_sensor(0xfa, 0x00);
+	LOG_INF("Exit otp function£¡\n\n");
 }
 
 static void set_dummy(void)
 {
+	printf("[set_dummy]: Entry set_dummy£º\n");
 	kal_uint32 frame_length = imgsensor.frame_length >> 2;
 
 	frame_length = frame_length << 2;
-	write_cmos_sensor(0xfe, 0x00);
-	write_cmos_sensor(0x41, (frame_length >> 8) & 0x3f);
-	write_cmos_sensor(0x42, frame_length & 0xff);
-	LOG_INF("Exit! framelength = %d\n", frame_length);
+	//write_cmos_sensor(0xfe, 0x00);
+	//write_cmos_sensor(0x41, (frame_length >> 8) & 0x3f);
+	//write_cmos_sensor(0x42, frame_length & 0xff);
+	LOG_INF("[set_dummy]: 0x41 = 0x%x\n", (frame_length >> 8) & 0x3f);
+	LOG_INF("[set_dummy]: 0x42 = 0x%x\n", frame_length & 0xff);
+	LOG_INF("[set_dummy]: Exit set_dummy! framelength = %d\n", frame_length);
 }
 
 static kal_uint32 return_sensor_id(void)
@@ -703,9 +712,13 @@ static kal_uint32 return_sensor_id(void)
 	return ((read_cmos_sensor(0xf0) << 8) | read_cmos_sensor(0xf1));
 }
 
-static void set_max_framerate(UINT16 framerate, kal_bool min_framelength_en)
+void set_max_framerate(UINT16 framerate, kal_bool min_framelength_en)
 {
+	printf("[set_max_framerate]: Entry set max framerate£º\n");
 	kal_uint32 frame_length = imgsensor.frame_length;
+
+	printf("[set_max_framerate]: frame_length£º%d\n", frame_length);
+	printf("[set_max_framerate]: line_length£º%d\n", imgsensor.line_length);
 
 	frame_length = imgsensor.pclk / framerate * 10 / imgsensor.line_length;
 
@@ -721,6 +734,7 @@ static void set_max_framerate(UINT16 framerate, kal_bool min_framelength_en)
 		imgsensor.min_frame_length = imgsensor.frame_length;
 	//spin_unlock(&imgsensor_drv_lock);
 	set_dummy();
+	printf("[set_max_framerate]: Exit set max framerate!\n");
 }
 
 /*************************************************************************
@@ -739,8 +753,9 @@ static void set_max_framerate(UINT16 framerate, kal_bool min_framelength_en)
 * GLOBALS AFFECTED
 *
 *************************************************************************/
-static void set_shutter(kal_uint16 shutter)
+void set_shutter(kal_uint16 shutter)
 {
+	LOG_INF("[set_shutter]: Entry set shutter£º\n");
 	unsigned long flags;
 	kal_uint16 realtime_fps = 0, cal_shutter = 0;
 
@@ -778,17 +793,21 @@ static void set_shutter(kal_uint16 shutter)
 	cal_shutter = cal_shutter << 2;
 	Dgain_ratio = 256 * shutter / cal_shutter;
 
-	write_cmos_sensor(0xfe, 0x00);
-	write_cmos_sensor(0x03, (cal_shutter >> 8) & 0x3F);
-	write_cmos_sensor(0x04, cal_shutter & 0xFF);
+	//write_cmos_sensor(0xfe, 0x00);
+	//write_cmos_sensor(0x03, (cal_shutter >> 8) & 0x3F);
+	//write_cmos_sensor(0x04, cal_shutter & 0xFF);
+	LOG_INF("[set_shutter]: 0x03 = 0x%x \n", (cal_shutter >> 8) & 0x3F);
+	LOG_INF("[set_shutter]: 0x04 = 0x%x \n\n", cal_shutter & 0xFF);
 
-	LOG_INF("Exit! shutter = %d, framelength = %d\n", shutter, imgsensor.frame_length);
-	LOG_INF("Exit! cal_shutter = %d, ", cal_shutter);
+
+	LOG_INF("[set_shutter]: Exit set shutter! shutter = %d, framelength = %d\n", shutter, imgsensor.frame_length);
+	LOG_INF("[set_shutter]: Exit set shutter! cal_shutter = %d \n\n", cal_shutter);
 }
 
 static kal_uint16 gain2reg(const kal_uint16 gain)
 {
 	kal_uint16 reg_gain = gain << 2;
+	//kal_uint16 reg_gain = gain;
 
 	if (reg_gain < GC5035_SENSOR_GAIN_BASE)
 		reg_gain = GC5035_SENSOR_GAIN_BASE;
@@ -814,8 +833,9 @@ static kal_uint16 gain2reg(const kal_uint16 gain)
 * GLOBALS AFFECTED
 *
 *************************************************************************/
-static kal_uint16 set_gain(kal_uint16 gain)
+kal_uint16 set_gain(kal_uint16 gain)
 {
+	LOG_INF("[set_gain]: Entry set gain£º\n");
 	kal_uint16 reg_gain;
 	kal_uint32 temp_gain;
 	kal_int16 gain_index;
@@ -845,12 +865,16 @@ static kal_uint16 set_gain(kal_uint16 gain)
 		if (reg_gain >= GC5035_AGC_Param[gain_index][0])
 			break;
 
-	write_cmos_sensor(0xfe, 0x00);
-	write_cmos_sensor(0xb6, GC5035_AGC_Param[gain_index][1]);
+	//write_cmos_sensor(0xfe, 0x00);
+	//write_cmos_sensor(0xb6, GC5035_AGC_Param[gain_index][1]);
+	LOG_INF("[set_gain]: 0xb6 = %d\n", GC5035_AGC_Param[gain_index][1]);
 	temp_gain = reg_gain * Dgain_ratio / GC5035_AGC_Param[gain_index][0];
-	write_cmos_sensor(0xb1, (temp_gain >> 8) & 0x0f);
-	write_cmos_sensor(0xb2, temp_gain & 0xfc);
-	LOG_INF("Exit! GC5035_AGC_Param[gain_index][1] = 0x%x, temp_gain = 0x%x, reg_gain = %d\n",
+	//write_cmos_sensor(0xb1, (temp_gain >> 8) & 0x0f);
+	//write_cmos_sensor(0xb2, temp_gain & 0xfc);
+	LOG_INF("[set_gain]: 0xb1 = 0x%02x \n", (temp_gain >> 8) & 0x0f);
+	LOG_INF("[set_gain]: 0xb2 = 0x%02x \n", temp_gain & 0xfc);
+
+	LOG_INF("[set_gain]: Exit set gain! GC5035_AGC_Param[gain_index][1] = 0x%x, temp_gain = 0x%x, reg_gain = %d\n\n",
 		GC5035_AGC_Param[gain_index][1], temp_gain, reg_gain);
 
 	return reg_gain;
@@ -890,7 +914,8 @@ static void night_mode(kal_bool enable)
 
 static void sensor_init(void)
 {
-	LOG_INF("E\n");
+	//LOG_INF("E\n");
+	LOG_INF("Entry sensor init,init regs setting£º\n");
 	/* SYSTEM */
 	write_cmos_sensor(0xfc, 0x01);
 	write_cmos_sensor(0xf4, 0x40);
@@ -1068,6 +1093,7 @@ static void sensor_init(void)
 
 	write_cmos_sensor(0xfe, 0x00);
 	write_cmos_sensor(0x3e, 0x01);
+	LOG_INF("Exit sensor init!\n\n");
 }
 
 static void preview_setting(void)
@@ -1696,7 +1722,7 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 	return ERROR_NONE;
 }
 
-static kal_uint32 open(void)
+kal_uint32 open(void)
 {
 	kal_uint8 i = 0;
 	kal_uint8 retry = 2;
@@ -1704,33 +1730,33 @@ static kal_uint32 open(void)
 
 	LOG_1;
 
-	while (imgsensor_info.i2c_addr_table[i] != 0xff) {
-		//spin_lock(&imgsensor_drv_lock);
-		imgsensor.i2c_write_id = imgsensor_info.i2c_addr_table[i];
-		//spin_unlock(&imgsensor_drv_lock);
-		do {
-			sensor_id = return_sensor_id();
-			if (sensor_id == imgsensor_info.sensor_id) {
-				pr_debug("[gc5035_camera_sensor]open:i2c write id: 0x%x, sensor id: 0x%x\n",
-					imgsensor.i2c_write_id, sensor_id);
-				break;
-			}
-			pr_debug("[gc5035_camera_sensor]open:Read sensor id fail, write id: 0x%x, id: 0x%x\n",
-				imgsensor.i2c_write_id, sensor_id);
-			retry--;
-		} while (retry > 0);
-		i++;
-		if (sensor_id == imgsensor_info.sensor_id)
-			break;
-		retry = 2;
-	}
-	if (imgsensor_info.sensor_id != sensor_id)
-		return ERROR_SENSOR_CONNECT_FAIL;
+	//while (imgsensor_info.i2c_addr_table[i] != 0xff) {
+	//	//spin_lock(&imgsensor_drv_lock);
+	//	imgsensor.i2c_write_id = imgsensor_info.i2c_addr_table[i];
+	//	//spin_unlock(&imgsensor_drv_lock);
+	//	do {
+	//		sensor_id = return_sensor_id();
+	//		if (sensor_id == imgsensor_info.sensor_id) {
+	//			pr_debug("[gc5035_camera_sensor]open:i2c write id: 0x%x, sensor id: 0x%x\n",
+	//				imgsensor.i2c_write_id, sensor_id);
+	//			break;
+	//		}
+	//		pr_debug("[gc5035_camera_sensor]open:Read sensor id fail, write id: 0x%x, id: 0x%x\n",
+	//			imgsensor.i2c_write_id, sensor_id);
+	//		retry--;
+	//	} while (retry > 0);
+	//	i++;
+	//	if (sensor_id == imgsensor_info.sensor_id)
+	//		break;
+	//	retry = 2;
+	//}
+	//if (imgsensor_info.sensor_id != sensor_id)
+	//	return ERROR_SENSOR_CONNECT_FAIL;
 
 	/* initail sequence write in  */
-	sensor_init();
+	//sensor_init();
 
-	gc5035_otp_function();
+	//gc5035_otp_function();
 
 	//spin_lock(&imgsensor_drv_lock);
 

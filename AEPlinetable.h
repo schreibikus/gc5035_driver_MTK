@@ -231,7 +231,7 @@ typedef struct
     strEvPline sTable50Hz;          // 60Hz structure table
     //strEvPline *pCurrentTable __attribute__ ((aligned (8))); // current structure table
     __declspec(align(8))strEvPline* pCurrentTable ;//__attribute__ gccÌØÉ«
-    strEvPline *pCurrentTable;
+    //strEvPline *pCurrentTable;
 }strAETable;
 
 typedef struct
