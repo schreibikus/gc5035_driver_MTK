@@ -33,6 +33,8 @@
 //#include "kd_imgsensor_define.h"
 //#include "kd_imgsensor_errcode.h"
 
+#include <stdio.h>
+#include <memory.h>
 #include "gc5035mipi_Sensor.h"
 
 /************************** Modify Following Strings for Debug **************************/
@@ -190,7 +192,7 @@ static kal_uint16 read_cmos_sensor(kal_uint32 addr)
 	/*char pu_send_cmd[1] = { (char)(addr & 0xFF) };
 
 	iReadRegI2C(pu_send_cmd, 1, (u8 *)&get_byte, 1, imgsensor.i2c_write_id);*/
-	printf("read sensor reg£º0x%x\n", addr);
+	LOG_INF("read sensor reg£º0x%d\n", addr);
 
 	return get_byte;
 }
@@ -210,7 +212,7 @@ static kal_uint8 gc5035_otp_read_byte(kal_uint16 addr)
 	write_cmos_sensor(0x6a, addr & 0xff);
 	write_cmos_sensor(0xf3, 0x20);
 
-	return read_cmos_sensor(0x6c);
+	return (kal_uint8)read_cmos_sensor(0x6c);
 }
 
 
@@ -231,7 +233,7 @@ static void gc5035_otp_read_group(kal_uint16 addr,
 	write_cmos_sensor(0xf3, 0x12);
 
 	for (i = 0; i < length; i++)
-		data[i] = read_cmos_sensor(0x6c);
+		data[i] = (kal_uint8)read_cmos_sensor(0x6c);
 
 	write_cmos_sensor(0xf3, 0x00);
 }
@@ -273,6 +275,7 @@ static void gc5035_gcore_read_reg(void)
 	struct gc5035_reg_update_t *pRegs = &gc5035_otp_data.regs;
 
 	memset(&reg, 0, GC5035_OTP_REG_DATA_SIZE);
+
 	pRegs->flag = gc5035_otp_read_byte(GC5035_OTP_REG_FLAG_OFFSET);
 	LOG_INF("register update flag = 0x%x\n", pRegs->flag);
 	if (pRegs->flag == GC5035_OTP_FLAG_VALID) {
@@ -509,7 +512,7 @@ static void gc5035_otp_update_dd(void)
 		write_cmos_sensor(0x9a, 0xa9);
 		write_cmos_sensor(0xf3, 0x80);
 		while (n < 3) {
-			state = read_cmos_sensor(0x06);
+			state = (kal_uint8)read_cmos_sensor(0x06);
 			if ((state | 0xfe) == 0xff)
 				//mdelay(10);
 				NULL;
@@ -702,8 +705,8 @@ static void set_dummy(void)
 	//write_cmos_sensor(0xfe, 0x00);
 	//write_cmos_sensor(0x41, (frame_length >> 8) & 0x3f);
 	//write_cmos_sensor(0x42, frame_length & 0xff);
-	LOG_INF("[set_dummy]: 0x41 = 0x%x\n", (frame_length >> 8) & 0x3f);
-	LOG_INF("[set_dummy]: 0x42 = 0x%x\n", frame_length & 0xff);
+	LOG_INF("[set_dummy]: 0x41 = 0x%02x\n", (frame_length >> 8) & 0x3f);
+	LOG_INF("[set_dummy]: 0x42 = 0x%02x\n", frame_length & 0xff);
 	LOG_INF("[set_dummy]: Exit set_dummy! framelength = %d\n", frame_length);
 }
 
@@ -756,7 +759,7 @@ void set_max_framerate(UINT16 framerate, kal_bool min_framelength_en)
 void set_shutter(kal_uint16 shutter)
 {
 	LOG_INF("[set_shutter]: Entry set shutter£º\n");
-	unsigned long flags;
+	//unsigned long flags;
 	kal_uint16 realtime_fps = 0, cal_shutter = 0;
 
 	//spin_lock_irqsave(&imgsensor_drv_lock, flags);
@@ -796,8 +799,8 @@ void set_shutter(kal_uint16 shutter)
 	//write_cmos_sensor(0xfe, 0x00);
 	//write_cmos_sensor(0x03, (cal_shutter >> 8) & 0x3F);
 	//write_cmos_sensor(0x04, cal_shutter & 0xFF);
-	LOG_INF("[set_shutter]: 0x03 = 0x%x \n", (cal_shutter >> 8) & 0x3F);
-	LOG_INF("[set_shutter]: 0x04 = 0x%x \n\n", cal_shutter & 0xFF);
+	LOG_INF("[set_shutter]: 0x03 = 0x%02x \n", (cal_shutter >> 8) & 0x3F);
+	LOG_INF("[set_shutter]: 0x04 = 0x%02x \n\n", cal_shutter & 0xFF);
 
 
 	LOG_INF("[set_shutter]: Exit set shutter! shutter = %d, framelength = %d\n", shutter, imgsensor.frame_length);
@@ -867,14 +870,14 @@ kal_uint16 set_gain(kal_uint16 gain)
 
 	//write_cmos_sensor(0xfe, 0x00);
 	//write_cmos_sensor(0xb6, GC5035_AGC_Param[gain_index][1]);
-	LOG_INF("[set_gain]: 0xb6 = %d\n", GC5035_AGC_Param[gain_index][1]);
+	LOG_INF("[set_gain]: 0xb6 = 0x%02x\n", GC5035_AGC_Param[gain_index][1]);
 	temp_gain = reg_gain * Dgain_ratio / GC5035_AGC_Param[gain_index][0];
 	//write_cmos_sensor(0xb1, (temp_gain >> 8) & 0x0f);
 	//write_cmos_sensor(0xb2, temp_gain & 0xfc);
 	LOG_INF("[set_gain]: 0xb1 = 0x%02x \n", (temp_gain >> 8) & 0x0f);
 	LOG_INF("[set_gain]: 0xb2 = 0x%02x \n", temp_gain & 0xfc);
 
-	LOG_INF("[set_gain]: Exit set gain! GC5035_AGC_Param[gain_index][1] = 0x%x, temp_gain = 0x%x, reg_gain = %d\n\n",
+	LOG_INF("[set_gain]: Exit set gain! GC5035_AGC_Param[gain_index][1] = 0x%02x, temp_gain = 0x%x, reg_gain = %d\n\n",
 		GC5035_AGC_Param[gain_index][1], temp_gain, reg_gain);
 
 	return reg_gain;
@@ -2242,7 +2245,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 		}
 		break;
 	case SENSOR_FEATURE_SET_ESHUTTER:
-		set_shutter(*feature_data);
+		set_shutter((kal_uint16)*feature_data);
 		break;
 	case SENSOR_FEATURE_SET_NIGHTMODE:
 		night_mode((BOOL)*feature_data);
@@ -2258,7 +2261,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 		write_cmos_sensor(sensor_reg_data->RegAddr, sensor_reg_data->RegData);
 		break;
 	case SENSOR_FEATURE_GET_REGISTER:
-		sensor_reg_data->RegData = read_cmos_sensor(sensor_reg_data->RegAddr);
+		sensor_reg_data->RegData = (kal_uint8)read_cmos_sensor(sensor_reg_data->RegAddr);
 		LOG_INF("adb_i2c_read 0x%x = 0x%x\n", sensor_reg_data->RegAddr, sensor_reg_data->RegData);
 		break;
 	case SENSOR_FEATURE_GET_LENS_DRIVER_ID:
@@ -2268,7 +2271,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 		*feature_para_len = 4;
 		break;
 	case SENSOR_FEATURE_SET_VIDEO_MODE:
-		set_video_mode(*feature_data);
+		set_video_mode((kal_uint16)*feature_data);
 		break;
 	case SENSOR_FEATURE_CHECK_SENSOR_ID:
 		get_imgsensor_id(feature_return_para_32);
@@ -2277,7 +2280,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 		set_auto_flicker_mode((BOOL)*feature_data_16, *(feature_data_16 + 1));
 		break;
 	case SENSOR_FEATURE_SET_MAX_FRAME_RATE_BY_SCENARIO:
-		set_max_framerate_by_scenario((MSDK_SCENARIO_ID_ENUM)*feature_data, *(feature_data + 1));
+		set_max_framerate_by_scenario((MSDK_SCENARIO_ID_ENUM)*feature_data, (MUINT32) *(feature_data + 1));
 		break;
 	case SENSOR_FEATURE_GET_DEFAULT_FRAME_RATE_BY_SCENARIO:
 		get_default_framerate_by_scenario((MSDK_SCENARIO_ID_ENUM)*(feature_data),
@@ -2293,7 +2296,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 	case SENSOR_FEATURE_SET_FRAMERATE:
 		LOG_INF("current fps :%d\n", (UINT32)*feature_data);
 		//spin_lock(&imgsensor_drv_lock);
-		imgsensor.current_fps = *feature_data;
+		imgsensor.current_fps = (kal_uint16)*feature_data;
 		//spin_unlock(&imgsensor_drv_lock);
 		break;
 	case SENSOR_FEATURE_SET_HDR:
@@ -2338,18 +2341,18 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 }
 
 static SENSOR_FUNCTION_STRUCT sensor_func = {
-	open,
-	get_info,
-	get_resolution,
-	feature_control,
-	control,
-	close
+	(uintptr_t)open,
+	(uintptr_t)get_info,
+	(uintptr_t)get_resolution,
+	(uintptr_t)feature_control,
+	(uintptr_t)control,
+	(uintptr_t)close
 };
 
 UINT32 GC5035MIPI_RAW_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
 {
 	/* To Do : Check Sensor status here */
 	if (pfFunc != NULL)
-		*pfFunc = &sensor_func;
+		*pfFunc = (PSENSOR_FUNCTION_STRUCT)&sensor_func;
 	return ERROR_NONE;
 }

@@ -183,6 +183,7 @@ typedef struct sensor_function_struct {
 }SENSOR_FUNCTION_STRUCT;
 
 
+
 #define PSENSOR_FUNCTION_STRUCT		uintptr_t
 
 

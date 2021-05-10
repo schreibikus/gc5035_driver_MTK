@@ -1,20 +1,6 @@
 ﻿  gc5035mipi_Sensor.c
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(193,8): warning C4013: “printf”未定义；假设外部返回 int
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(213,31): warning C4244: “return”: 从“unsigned short”转换到“unsigned char”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(234,35): warning C4244: “=”: 从“unsigned short”转换到“unsigned char”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(275,8): warning C4013: “memset”未定义；假设外部返回 int
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(512,34): warning C4244: “=”: 从“unsigned short”转换到“unsigned char”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(759,16): warning C4101: “flags”: 未引用的局部变量
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2245,28): warning C4244: “函数”: 从“unsigned __int64”转换到“unsigned short”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2261,72): warning C4244: “=”: 从“unsigned short”转换到“unsigned char”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2271,31): warning C4244: “函数”: 从“unsigned __int64”转换到“unsigned short”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2280,90): warning C4244: “函数”: 从“unsigned __int64”转换到“unsigned int”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2296,40): warning C4244: “=”: 从“unsigned __int64”转换到“unsigned short”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2310,10): warning C4013: “memcpy”未定义；假设外部返回 int
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2340,1): warning C4047: “初始化”:“unsigned int *”与“unsigned int (__cdecl *)(void)”的间接级别不同
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2340,1): warning C4047: “初始化”:“unsigned int *”与“unsigned int (__cdecl *)(MSDK_SCENARIO_ID_ENUM,MSDK_SENSOR_INFO_STRUCT *,MSDK_SENSOR_CONFIG_STRUCT *)”的间接级别不同
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2340,1): warning C4047: “初始化”:“unsigned int *”与“unsigned int (__cdecl *)(MSDK_SENSOR_RESOLUTION_INFO_STRUCT *)”的间接级别不同
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2340,1): warning C4047: “初始化”:“unsigned int *”与“unsigned int (__cdecl *)(MSDK_SENSOR_FEATURE_ENUM,unsigned char *,unsigned int *)”的间接级别不同
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2340,1): warning C4047: “初始化”:“unsigned int *”与“unsigned int (__cdecl *)(MSDK_SCENARIO_ID_ENUM,MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *,MSDK_SENSOR_CONFIG_STRUCT *)”的间接级别不同
-D:\File\Others\C_program\proj\gc5035_driver_MTK\gc5035mipi_Sensor.c(2353,25): warning C4133: “=”: 从“SENSOR_FUNCTION_STRUCT *”到“unsigned int *”的类型不兼容
+  main.c
+D:\File\Others\C_program\proj\gc5035_driver_MTK\main.c(16,28): warning C4244: “=”: 从“double”转换到“unsigned short”，可能丢失数据
+D:\File\Others\C_program\proj\gc5035_driver_MTK\main.c(21,1): warning C4305: “初始化”: 从“double”到“float”截断
+  正在生成代码...
   gc5035_driver_MTK.vcxproj -> D:\File\Others\C_program\proj\gc5035_driver_MTK\Debug\gc5035_driver_MTK.exe
