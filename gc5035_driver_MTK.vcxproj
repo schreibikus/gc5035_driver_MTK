@@ -142,6 +142,7 @@
     <ClInclude Include="AEPlinetable.h" />
     <ClInclude Include="camera_AE_PLineTable_gc5035mipiraw.h" />
     <ClInclude Include="gc5035mipi_Sensor.h" />
+    <ClInclude Include="OtpDumpInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gc5035mipi_Sensor.c" />

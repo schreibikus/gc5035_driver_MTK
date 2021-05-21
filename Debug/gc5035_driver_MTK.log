@@ -1,6 +1,2 @@
-﻿  gc5035mipi_Sensor.c
-  main.c
-D:\File\Others\C_program\proj\gc5035_driver_MTK\main.c(16,28): warning C4244: “=”: 从“double”转换到“unsigned short”，可能丢失数据
-D:\File\Others\C_program\proj\gc5035_driver_MTK\main.c(21,1): warning C4305: “初始化”: 从“double”到“float”截断
-  正在生成代码...
-  gc5035_driver_MTK.vcxproj -> D:\File\Others\C_program\proj\gc5035_driver_MTK\Debug\gc5035_driver_MTK.exe
+﻿main.obj : error LNK2005: _OtpData 已经在 gc5035mipi_Sensor.obj 中定义
+D:\File\Others\C_program\proj\gc5035_driver_MTK\Debug\gc5035_driver_MTK.exe : fatal error LNK1169: 找到一个或多个多重定义的符号

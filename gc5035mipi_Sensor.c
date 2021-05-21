@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <memory.h>
 #include "gc5035mipi_Sensor.h"
+#include "OtpDumpInfo.h"
 
 /************************** Modify Following Strings for Debug **************************/
 #define PFX "gc5035_camera_sensor"
@@ -192,7 +193,8 @@ static kal_uint16 read_cmos_sensor(kal_uint32 addr)
 	/*char pu_send_cmd[1] = { (char)(addr & 0xFF) };
 
 	iReadRegI2C(pu_send_cmd, 1, (u8 *)&get_byte, 1, imgsensor.i2c_write_id);*/
-	LOG_INF("read sensor reg£º0x%d\n", addr);
+	//LOG_INF("read sensor reg£º0x%d\n", addr);
+	NULL;
 
 	return get_byte;
 }
@@ -202,15 +204,19 @@ static void write_cmos_sensor(kal_uint32 addr, kal_uint32 para)
 	/*char pu_send_cmd[2] = { (char)(addr & 0xFF), (char)(para & 0xFF) };
 
 	iWriteRegI2C(pu_send_cmd, 2, imgsensor.i2c_write_id);*/
-	printf("write sensor reg£º0x%x,0x%x\n", addr, para);
+	//printf("write sensor reg£º0x%x,0x%x\n", addr, para);
+	NULL;
 }
 
 static kal_uint8 gc5035_otp_read_byte(kal_uint16 addr)
 {
-	write_cmos_sensor(0xfe, 0x02);
+	/*write_cmos_sensor(0xfe, 0x02);
 	write_cmos_sensor(0x69, (addr >> 8) & 0x1f);
 	write_cmos_sensor(0x6a, addr & 0xff);
-	write_cmos_sensor(0xf3, 0x20);
+	write_cmos_sensor(0xf3, 0x20);*/
+
+	printf("read byte:%d", OtpData[addr].Data);
+
 
 	return (kal_uint8)read_cmos_sensor(0x6c);
 }
@@ -239,25 +245,25 @@ static void gc5035_otp_read_group(kal_uint16 addr,
 }
 
 
-static void gc5035_gcore_read_dpc(void)
+void gc5035_gcore_read_dpc(void)
 {
 	kal_uint8 dpcFlag = 0;
 	struct gc5035_dpc_t *pDPC = &gc5035_otp_data.dpc;
 
 	dpcFlag = gc5035_otp_read_byte(GC5035_OTP_DPC_FLAG_OFFSET);
-	LOG_INF("dpc flag = 0x%x\n", dpcFlag);
+	LOG_INF("[gc5035_gcore_read_dpc] dpc flag = 0x%x\n", dpcFlag);
 	switch (GC5035_OTP_GET_2BIT_FLAG(dpcFlag, 0)) {
 	case GC5035_OTP_FLAG_EMPTY: {
-		LOG_INF("dpc info is empty!!\n");
+		LOG_INF("[gc5035_gcore_read_dpc] dpc info is empty!!\n");
 		pDPC->flag = GC5035_OTP_FLAG_EMPTY;
 		break;
 	}
 	case GC5035_OTP_FLAG_VALID: {
-		LOG_INF("dpc info is valid!\n");
+		LOG_INF("[gc5035_gcore_read_dpc] dpc info is valid!\n");
 		pDPC->total_num = gc5035_otp_read_byte(GC5035_OTP_DPC_TOTAL_NUMBER_OFFSET)
 			+ gc5035_otp_read_byte(GC5035_OTP_DPC_ERROR_NUMBER_OFFSET);
 		pDPC->flag = GC5035_OTP_FLAG_VALID;
-		LOG_INF("total_num = %d\n", pDPC->total_num);
+		LOG_INF("[gc5035_gcore_read_dpc] total_num = %d\n", pDPC->total_num);
 		break;
 	}
 	default:
@@ -266,7 +272,7 @@ static void gc5035_gcore_read_dpc(void)
 	}
 }
 
-static void gc5035_gcore_read_reg(void)
+void gc5035_gcore_read_reg(void)
 {
 	kal_uint8 i = 0;
 	kal_uint8 j = 0;
@@ -277,7 +283,7 @@ static void gc5035_gcore_read_reg(void)
 	memset(&reg, 0, GC5035_OTP_REG_DATA_SIZE);
 
 	pRegs->flag = gc5035_otp_read_byte(GC5035_OTP_REG_FLAG_OFFSET);
-	LOG_INF("register update flag = 0x%x\n", pRegs->flag);
+	LOG_INF("[gc5035_gcore_read_reg] register update flag = 0x%x\n", pRegs->flag);
 	if (pRegs->flag == GC5035_OTP_FLAG_VALID) {
 		gc5035_otp_read_group(GC5035_OTP_REG_DATA_OFFSET, &reg[0], GC5035_OTP_REG_DATA_SIZE);
 
@@ -291,7 +297,7 @@ static void gc5035_gcore_read_reg(void)
 						reg[base_group + j * GC5035_OTP_REG_BYTE_PER_REG + 1];
 					pRegs->reg[pRegs->cnt].value =
 						reg[base_group + j * GC5035_OTP_REG_BYTE_PER_REG + 2];
-					LOG_INF("register[%d] P%d:0x%x->0x%x\n",
+					LOG_INF("[gc5035_gcore_read_reg] register[%d] P%d:0x%x->0x%x\n",
 						pRegs->cnt, pRegs->reg[pRegs->cnt].page,
 						pRegs->reg[pRegs->cnt].addr, pRegs->reg[pRegs->cnt].value);
 					pRegs->cnt++;
@@ -302,7 +308,7 @@ static void gc5035_gcore_read_reg(void)
 }
 
 #if GC5035_OTP_FOR_CUSTOMER
-static kal_uint8 gc5035_otp_read_module_info(void)
+kal_uint8 gc5035_otp_read_module_info(void)
 {
 	kal_uint8 i = 0;
 	kal_uint8 idx = 0;
@@ -316,16 +322,16 @@ static kal_uint8 gc5035_otp_read_module_info(void)
 	memset(&module_info, 0, sizeof(struct gc5035_module_info_t));
 
 	flag = gc5035_otp_read_byte(GC5035_OTP_MODULE_FLAG_OFFSET);
-	LOG_INF("flag = 0x%x\n", flag);
+	LOG_INF("[gc5035_otp_read_module_info] flag = 0x%x\n", flag);
 
 	for (idx = 0; idx < GC5035_OTP_GROUP_CNT; idx++) {
 		switch (GC5035_OTP_GET_2BIT_FLAG(flag, 2 * (1 - idx))) {
 		case GC5035_OTP_FLAG_EMPTY: {
-			LOG_INF("group %d is empty!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_module_info] group %d is empty!\n", idx + 1);
 			break;
 		}
 		case GC5035_OTP_FLAG_VALID: {
-			LOG_INF("group %d is valid!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_module_info] group %d is valid!\n", idx + 1);
 			module_start_offset = GC5035_OTP_MODULE_DATA_OFFSET
 				+ GC5035_OTP_GET_OFFSET(idx * GC5035_OTP_MODULE_DATA_SIZE);
 			gc5035_otp_read_group(module_start_offset, &info[0], GC5035_OTP_MODULE_DATA_SIZE);
@@ -339,17 +345,17 @@ static kal_uint8 gc5035_otp_read_module_info(void)
 				module_info.month = info[3];
 				module_info.day = info[4];
 
-				LOG_INF("module_id = 0x%x\n", module_info.module_id);
-				LOG_INF("lens_id = 0x%x\n", module_info.lens_id);
-				LOG_INF("data = %d-%d-%d\n", module_info.year, module_info.month, module_info.day);
+				LOG_INF("[gc5035_otp_read_module_info] module_id = 0x%x\n", module_info.module_id);
+				LOG_INF("[gc5035_otp_read_module_info] lens_id = 0x%x\n", module_info.lens_id);
+				LOG_INF("[gc5035_otp_read_module_info] data = %d-%d-%d\n", module_info.year, module_info.month, module_info.day);
 			} else
-				LOG_INF("check sum %d error! check sum = 0x%x, calculate result = 0x%x\n",
+				LOG_INF("[gc5035_otp_read_module_info] check sum %d error! check sum = 0x%x, calculate result = 0x%x\n",
 					idx + 1, info[GC5035_OTP_MODULE_DATA_SIZE - 1], (check % 255 + 1));
 			break;
 		}
 		case GC5035_OTP_FLAG_INVALID:
 		case GC5035_OTP_FLAG_INVALID2: {
-			LOG_INF("group %d is invalid!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_module_info] group %d is invalid!\n", idx + 1);
 			break;
 		}
 		default:
@@ -360,7 +366,7 @@ static kal_uint8 gc5035_otp_read_module_info(void)
 	return module_info.module_id;
 }
 
-static void gc5035_otp_read_wb_info(void)
+void gc5035_otp_read_wb_info(void)
 {
 	kal_uint8 i = 0;
 	kal_uint8 idx = 0;
@@ -377,17 +383,17 @@ static void gc5035_otp_read_wb_info(void)
 	memset(&wb, 0, GC5035_OTP_WB_DATA_SIZE);
 	memset(&golden, 0, GC5035_OTP_GOLDEN_DATA_SIZE);
 	flag = gc5035_otp_read_byte(GC5035_OTP_WB_FLAG_OFFSET);
-	LOG_INF("flag = 0x%x\n", flag);
+	LOG_INF("[gc5035_otp_read_wb_info] flag = 0x%x\n", flag);
 
 	for (idx = 0; idx < GC5035_OTP_GROUP_CNT; idx++) {
 		switch (GC5035_OTP_GET_2BIT_FLAG(flag, 2 * (1 - idx))) {
 		case GC5035_OTP_FLAG_EMPTY: {
-			LOG_INF("wb group %d is empty!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_wb_info] wb group %d is empty!\n", idx + 1);
 			pWB->flag = pWB->flag | GC5035_OTP_FLAG_EMPTY;
 			break;
 		}
 		case GC5035_OTP_FLAG_VALID: {
-			LOG_INF("wb group %d is valid!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_wb_info] wb group %d is valid!\n", idx + 1);
 			wb_start_offset = GC5035_OTP_WB_DATA_OFFSET
 				+ GC5035_OTP_GET_OFFSET(idx * GC5035_OTP_WB_DATA_SIZE);
 			gc5035_otp_read_group(wb_start_offset, &wb[0], GC5035_OTP_WB_DATA_SIZE);
@@ -401,18 +407,18 @@ static void gc5035_otp_read_wb_info(void)
 				pWB->rg = pWB->rg == 0 ? GC5035_OTP_WB_RG_TYPICAL : pWB->rg;
 				pWB->bg = pWB->bg == 0 ? GC5035_OTP_WB_BG_TYPICAL : pWB->bg;
 				pWB->flag = pWB->flag | GC5035_OTP_FLAG_VALID;
-				LOG_INF("wb r/g = 0x%x\n", pWB->rg);
-				LOG_INF("wb b/g = 0x%x\n", pWB->bg);
+				LOG_INF("[gc5035_otp_read_wb_info] wb r/g = 0x%x\n", pWB->rg);
+				LOG_INF("[gc5035_otp_read_wb_info] wb b/g = 0x%x\n", pWB->bg);
 			} else {
 				pWB->flag = pWB->flag | GC5035_OTP_FLAG_INVALID;
-				LOG_INF("wb check sum %d error! check sum = 0x%x, calculate result = 0x%x\n",
+				LOG_INF("[gc5035_otp_read_wb_info] wb check sum %d error! check sum = 0x%x, calculate result = 0x%x\n",
 					idx + 1, wb[GC5035_OTP_WB_DATA_SIZE - 1], (wb_check % 255 + 1));
 			}
 			break;
 		}
 		case GC5035_OTP_FLAG_INVALID:
 		case GC5035_OTP_FLAG_INVALID2: {
-			LOG_INF("wb group %d is invalid!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_wb_info] wb group %d is invalid!\n", idx + 1);
 			pWB->flag = pWB->flag | GC5035_OTP_FLAG_INVALID;
 			break;
 		}
@@ -422,12 +428,12 @@ static void gc5035_otp_read_wb_info(void)
 
 		switch (GC5035_OTP_GET_2BIT_FLAG(flag, 2 * (3 - idx))) {
 		case GC5035_OTP_FLAG_EMPTY: {
-			LOG_INF("golden group %d is empty!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_wb_info] golden group %d is empty!\n", idx + 1);
 			pGolden->flag = pGolden->flag | GC5035_OTP_FLAG_EMPTY;
 			break;
 		}
 		case GC5035_OTP_FLAG_VALID: {
-			LOG_INF("golden group %d is valid!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_wb_info] golden group %d is valid!\n", idx + 1);
 			golden_start_offset = GC5035_OTP_GOLDEN_DATA_OFFSET
 				+ GC5035_OTP_GET_OFFSET(idx * GC5035_OTP_GOLDEN_DATA_SIZE);
 			gc5035_otp_read_group(golden_start_offset, &golden[0], GC5035_OTP_GOLDEN_DATA_SIZE);
@@ -440,18 +446,18 @@ static void gc5035_otp_read_wb_info(void)
 				pGolden->rg = pGolden->rg == 0 ? GC5035_OTP_WB_RG_TYPICAL : pGolden->rg;
 				pGolden->bg = pGolden->bg == 0 ? GC5035_OTP_WB_BG_TYPICAL : pGolden->bg;
 				pGolden->flag = pGolden->flag | GC5035_OTP_FLAG_VALID;
-				LOG_INF("golden r/g = 0x%x\n", pGolden->rg);
-				LOG_INF("golden b/g = 0x%x\n", pGolden->bg);
+				LOG_INF("[gc5035_otp_read_wb_info] golden r/g = 0x%x\n", pGolden->rg);
+				LOG_INF("[gc5035_otp_read_wb_info] golden b/g = 0x%x\n", pGolden->bg);
 			} else {
 				pGolden->flag = pGolden->flag | GC5035_OTP_FLAG_INVALID;
-				LOG_INF("golden check sum %d error! check sum = 0x%x, calculate result = 0x%x\n",
+				LOG_INF("[gc5035_otp_read_wb_info] golden check sum %d error! check sum = 0x%x, calculate result = 0x%x\n",
 					idx + 1, golden[GC5035_OTP_WB_DATA_SIZE - 1], (golden_check % 255 + 1));
 			}
 			break;
 		}
 		case GC5035_OTP_FLAG_INVALID:
 		case GC5035_OTP_FLAG_INVALID2: {
-			LOG_INF("golden group %d is invalid!\n", idx + 1);
+			LOG_INF("[gc5035_otp_read_wb_info] golden group %d is invalid!\n", idx + 1);
 			pGolden->flag = pGolden->flag | GC5035_OTP_FLAG_INVALID;
 			break;
 		}
@@ -488,14 +494,14 @@ static kal_uint8 gc5035_otp_read_sensor_info(void)
 	return moduleID;
 }
 
-static void gc5035_otp_update_dd(void)
+void gc5035_otp_update_dd(void)
 {
 	kal_uint8 state = 0;
 	kal_uint8 n = 0;
 	struct gc5035_dpc_t *pDPC = &gc5035_otp_data.dpc;
 
 	if (GC5035_OTP_FLAG_VALID == pDPC->flag) {
-		LOG_INF("DD auto load start!\n");
+		LOG_INF("[gc5035_otp_update_dd] DD auto load start!\n");
 		write_cmos_sensor(0xfe, 0x02);
 		write_cmos_sensor(0xbe, 0x00);
 		write_cmos_sensor(0xa9, 0x01);
@@ -550,7 +556,7 @@ static void gc5035_otp_update_wb(void)
 		rg_typical = GC5035_OTP_WB_RG_TYPICAL;
 		bg_typical = GC5035_OTP_WB_BG_TYPICAL;
 	}
-	LOG_INF("typical rg = 0x%x, bg = 0x%x\n", rg_typical, bg_typical);
+	LOG_INF("[gc5035_otp_update_wb] typical rg = 0x%x, bg = 0x%x\n", rg_typical, bg_typical);
 
 	if (GC5035_OTP_CHECK_1BIT_FLAG(pWB->flag, 0)) {
 		r_gain_curr = GC5035_OTP_WB_CAL_BASE * rg_typical / pWB->rg;
@@ -563,7 +569,7 @@ static void gc5035_otp_update_wb(void)
 		r_gain = GC5035_OTP_WB_GAIN_BASE * r_gain_curr / base_gain;
 		g_gain = GC5035_OTP_WB_GAIN_BASE * g_gain_curr / base_gain;
 		b_gain = GC5035_OTP_WB_GAIN_BASE * b_gain_curr / base_gain;
-		LOG_INF("channel gain r = 0x%x, g = 0x%x, b = 0x%x\n", r_gain, g_gain, b_gain);
+		LOG_INF("[gc5035_otp_update_wb] channel gain r = 0x%x, g = 0x%x, b = 0x%x\n", r_gain, g_gain, b_gain);
 
 		write_cmos_sensor(0xfe, 0x04);
 		write_cmos_sensor(0x40, g_gain & 0xff);
@@ -591,13 +597,13 @@ static void gc5035_otp_update_reg(void)
 {
 	kal_uint8 i = 0;
 
-	LOG_INF("reg count = %d\n", gc5035_otp_data.regs.cnt);
+	LOG_INF("[gc5035_otp_update_reg] reg count = %d\n", gc5035_otp_data.regs.cnt);
 
 	if (GC5035_OTP_CHECK_1BIT_FLAG(gc5035_otp_data.regs.flag, 0))
 		for (i = 0; i < gc5035_otp_data.regs.cnt; i++) {
 			write_cmos_sensor(0xfe, gc5035_otp_data.regs.reg[i].page);
 			write_cmos_sensor(gc5035_otp_data.regs.reg[i].addr, gc5035_otp_data.regs.reg[i].value);
-			LOG_INF("reg[%d] P%d:0x%x -> 0x%x\n", i, gc5035_otp_data.regs.reg[i].page,
+			LOG_INF("[gc5035_otp_update_reg] reg[%d] P%d:0x%x -> 0x%x\n", i, gc5035_otp_data.regs.reg[i].page,
 				gc5035_otp_data.regs.reg[i].addr, gc5035_otp_data.regs.reg[i].value);
 		}
 }

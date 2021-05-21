@@ -24,6 +24,9 @@
     <ClInclude Include="AEPlinetable.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="OtpDumpInfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gc5035mipi_Sensor.c">
