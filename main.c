@@ -3,7 +3,6 @@
 
 #include "gc5035mipi_Sensor.h"
 #include "camera_AE_PLineTable_gc5035mipiraw.h"
-#include "OtpDumpInfo.h"
 
 
 int main() {
@@ -18,9 +17,8 @@ int main() {
 	set_shutter(shutter);
 	set_gain(gain);*/
 
-	gc5035_gcore_read_dpc();
-	gc5035_gcore_read_reg();
-	gc5035_otp_read_module_info();
+	gc5035_otp_read_sensor_info();
+	gc5035_otp_update();
 
 	return 0;
 }

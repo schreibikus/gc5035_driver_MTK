@@ -215,10 +215,11 @@ static kal_uint8 gc5035_otp_read_byte(kal_uint16 addr)
 	write_cmos_sensor(0x6a, addr & 0xff);
 	write_cmos_sensor(0xf3, 0x20);*/
 
-	printf("read byte:%d", OtpData[addr].Data);
+	kal_uint16 index = addr / 8;
+	//printf("[gc5035_otp_read_byte] read byte:%x\n", OtpData[index].Data);
 
-
-	return (kal_uint8)read_cmos_sensor(0x6c);
+	return OtpData[index].Data;
+	//return (kal_uint8)read_cmos_sensor(0x6c);
 }
 
 
@@ -238,9 +239,11 @@ static void gc5035_otp_read_group(kal_uint16 addr,
 	write_cmos_sensor(0xf3, 0x20);
 	write_cmos_sensor(0xf3, 0x12);
 
-	for (i = 0; i < length; i++)
-		data[i] = (kal_uint8)read_cmos_sensor(0x6c);
-
+	for (i = 0; i < length; i++) {
+		//data[i] = (kal_uint8)read_cmos_sensor(0x6c);
+		data[i] = (kal_uint8)gc5035_otp_read_byte(addr);
+		addr += 8;
+	}
 	write_cmos_sensor(0xf3, 0x00);
 }
 
@@ -264,6 +267,23 @@ void gc5035_gcore_read_dpc(void)
 			+ gc5035_otp_read_byte(GC5035_OTP_DPC_ERROR_NUMBER_OFFSET);
 		pDPC->flag = GC5035_OTP_FLAG_VALID;
 		LOG_INF("[gc5035_gcore_read_dpc] total_num = %d\n", pDPC->total_num);
+
+		//int* deadpoint = (int*)malloc(pDPC->total_num * 4);
+		for (kal_uint8 i = 0; i < pDPC->total_num; i++)
+		{
+			kal_uint8 byte1 = gc5035_otp_read_byte(GC5035_OTP_DPC_ERROR_NUMBER_OFFSET + 0x0008 + 0x0008 * 4 * i);
+			kal_uint8 byte2 = gc5035_otp_read_byte(GC5035_OTP_DPC_ERROR_NUMBER_OFFSET + 0x0010 + 0x0008 * 4 * i);
+			kal_uint8 byte3 = gc5035_otp_read_byte(GC5035_OTP_DPC_ERROR_NUMBER_OFFSET + 0x0018 + 0x0008 * 4 * i);
+			kal_uint8 byte4 = gc5035_otp_read_byte(GC5035_OTP_DPC_ERROR_NUMBER_OFFSET + 0x0020 + 0x0008 * 4 * i);
+			LOG_INF("[gc5035_gcore_read_dpc] GC5035_OTP_DD£ºbyte1 = %d byte2 = %d byte3 = %d byte4 = %d\n", byte1, byte2, byte3, byte4);
+
+			kal_uint16 x = byte1 + ((byte2 & 0x0f) << 8);
+			kal_uint16 y = ((byte2 & 0xf0) >> 4) + ((byte3 & 0x7f) << 4);
+			kal_uint8 type = ((byte4 & 0x03) << 1) + ((byte3 & 0x80) >> 7);
+		
+			LOG_INF("[gc5035_gcore_read_dpc] GC5035_OTP_DD£ºx:%d y:%d type:%d\n", x,y,type);
+		}
+
 		break;
 	}
 	default:
@@ -468,7 +488,7 @@ void gc5035_otp_read_wb_info(void)
 }
 #endif
 
-static kal_uint8 gc5035_otp_read_sensor_info(void)
+kal_uint8 gc5035_otp_read_sensor_info(void)
 {
 	kal_uint8 moduleID = 0;
 #if GC5035_OTP_DEBUG
@@ -535,7 +555,7 @@ void gc5035_otp_update_dd(void)
 }
 
 #if GC5035_OTP_FOR_CUSTOMER
-static void gc5035_otp_update_wb(void)
+void gc5035_otp_update_wb(void)
 {
 	kal_uint16 r_gain = GC5035_OTP_WB_GAIN_BASE;
 	kal_uint16 g_gain = GC5035_OTP_WB_GAIN_BASE;
@@ -593,7 +613,7 @@ static void gc5035_otp_update_wb(void)
 }
 #endif
 
-static void gc5035_otp_update_reg(void)
+void gc5035_otp_update_reg(void)
 {
 	kal_uint8 i = 0;
 
@@ -608,7 +628,7 @@ static void gc5035_otp_update_reg(void)
 		}
 }
 
-static void gc5035_otp_update(void)
+void gc5035_otp_update(void)
 {
 	gc5035_otp_update_dd();
 #if GC5035_OTP_FOR_CUSTOMER
